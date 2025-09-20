@@ -1,6 +1,7 @@
 {
 module Idl.Parser2 where
-
+import           Data.Text (Text)
+import qualified Data.Text as Text
 import qualified Idl.Lexer as L
 import Idl.Lexer (Token, Token(..))
 import Idl.Ast2
@@ -131,6 +132,17 @@ import Control.Monad.Trans.Class (lift)
   "::"                 { T _ L.ColonColon _ }
   ">"                  { T _ L.Gt _ }
   "<"                  { T _ L.Lt _ }
+  ">>"                 { T _ L.ShiftRight _ }
+  "<<"                 { T _ L.ShiftLeft _ }
+  "+"                  { T _ L.Plus _ }
+  "-"                  { T _ L.Minus _ }
+  "^"                  { T _ L.Xor _ }
+  "&"                  { T _ L.And _ }
+  "|"                  { T _ L.Or _ }
+  "~"                  { T _ L.Not _ }
+  "*"                  { T _ L.Mul _ }
+  "/"                  { T _ L.Div _ }
+  "%"                  { T _ L.Mod _ }
 
 %%
 
@@ -171,19 +183,55 @@ const_type : integer_type         { TSInt $1 }
 
 -- 7
 const_expr :: { ConstExpr }
-const_expr : primary_expr { $1 }
+const_expr : or_expr { $1 }
+
+-- 8
+or_expr : xor_expr              { $1           }
+        | or_expr "|" xor_expr  { OrExpr $1 $3 }
+
+-- 9
+xor_expr : and_expr               { $1            }
+         | xor_expr "^" and_expr  { XorExpr $1 $3 }
+-- 10
+and_expr : shift_expr               { $1            }
+         | and_expr "&" shift_expr  { AndExpr $1 $3 }
+
+-- 11
+shift_expr : add_expr                   { $1               }
+           | shift_expr ">>" add_expr   { ShiftRExpr $1 $3 }
+           | shift_expr "<<" shift_expr { ShiftLExpr $1 $3 }
+
+--12
+add_expr : mult_expr              { $1            }
+         | add_expr "+" mult_expr { AddExpr $1 $3 }
+         | add_expr "-" mult_expr { SubExpr $1 $3 }
+-- 13
+mult_expr : unary_expr               { $1            }
+          | mult_expr "*" unary_expr { MultExpr $1 $3 }
+          | mult_expr "/" unary_expr { DivExpr $1 $3 }
+          | mult_expr "%" unary_expr { ModExpr $1 $3 }
+
+-- 14
+unary_expr : unary_operator primary_expr  { $1 $2 }
+           | primary_expr                 { $1 }
+
+-- 15
+unary_operator : "-"  { UnaryNeg }
+               | "+"  { UnaryAdd }
+               | "~"  { UnaryNot }
 
 -- 16
 primary_expr :: { ConstExpr }
-primary_expr : scoped_name { ExprScoped $1 }
-             | literal     { ExprLiteral $1 }
+primary_expr : scoped_name        { ExprScoped $1 }
+             | literal            { ExprLiteral $1 }
+             | "(" const_expr ")" { $2 }
 
 -- 17
 literal :: { Literal }
-literal : integer_literal        { LitInt (read $1)   }
-        | floating_pt_literal    { LitFloat (read $1) }
+literal : integer_literal        { LitInt (read (Text.unpack $1))   }
+        | floating_pt_literal    { LitFloat (read (Text.unpack $1)) }
         | fixed_pt_literal       { LitFixed $1        }
-        | character_literal      { LitChar (read $1)  }
+        | character_literal      { LitChar (read (Text.unpack $1))  }
         | wide_character_literal { LitWChar $1        }
         | boolean_literal        { LitBool $1         }
         | string_literal         { LitString $1       }
@@ -466,7 +514,7 @@ type Parse = ExceptT String L.Alex
 parseError :: Token -> Parse a
 parseError tok = throwE $ "Parse Error: " ++ (show tok)
 
-runParser :: String -> Either String Specification
+runParser ::Text -> Either String Specification
 runParser = join <$> flip L.runAlex (runExceptT idlParse)
 
 }

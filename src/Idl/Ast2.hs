@@ -1,4 +1,5 @@
 module Idl.Ast2 where
+import           Data.Text
 
 -- Top-level specification
 type Specification = [Definition]
@@ -13,16 +14,23 @@ data Definition
 data ConstExpr
   = ExprScoped ScopedName
   | ExprLiteral Literal
+  | OrExpr ConstExpr ConstExpr
+  | XorExpr ConstExpr ConstExpr
+  | AndExpr ConstExpr ConstExpr
+  | ShiftRExpr ConstExpr ConstExpr | ShiftLExpr ConstExpr ConstExpr
+  | AddExpr ConstExpr ConstExpr | SubExpr ConstExpr ConstExpr
+  | MultExpr ConstExpr ConstExpr | DivExpr ConstExpr ConstExpr | ModExpr ConstExpr ConstExpr
+  | UnaryNeg ConstExpr | UnaryNot ConstExpr | UnaryAdd ConstExpr
   deriving (Show)
 
 data Literal
   = LitInt Integer
   | LitFloat Double
-  | LitFixed String
+  | LitFixed Text
   | LitChar Char
-  | LitWChar String
-  | LitString String
-  | LitWString String
+  | LitWChar Text
+  | LitString Text
+  | LitWString Text
   | LitBool Bool
   deriving (Show)
 
@@ -80,5 +88,5 @@ data FloatingKind
 
 -- Scoped names like ::A::B::C => ["A", "B", "C"]
 type ScopedName = [Identifier]
-type Identifier = String
+type Identifier = Text
 

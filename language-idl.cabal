@@ -45,6 +45,7 @@ executable language-idl
     -- other-extensions:
     build-depends:
         base ^>=4.18.3.0,
+        text,
         language-idl
 
     hs-source-dirs:   app

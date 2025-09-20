@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Proto where
 
+import Data.Text
 import Data.Stack
 import Control.Monad.State
 import Prettyprinter
@@ -11,12 +12,12 @@ import GHC.Natural (naturalToInteger)
 
 
 newtype ProtoState = ProtoState {
-  stack :: Stack String
+  stack :: Stack Text
 }
 
 type ProtoPrint a = State ProtoState a
 
-pushStack :: String -> ProtoPrint ()
+pushStack :: Text -> ProtoPrint ()
 pushStack name = modify (\s -> s { stack = stackPush (stack s) name } )
 
 stackDepth :: ProtoPrint Int

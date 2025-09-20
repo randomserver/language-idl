@@ -1,8 +1,12 @@
 {
+{-# LANGUAGE OverloadedStrings #-}
 module Idl.Lexer where
+import           Data.Text (Text)
+import qualified Data.Text as Text
+
 }
 
-%wrapper "monad"
+%wrapper "monad-strict-text"
 %encoding "utf-8"
 
 -- Character class macros
@@ -14,8 +18,8 @@ module Idl.Lexer where
 @linecomment   = "//".*
 @blockcomment  = "/*" ( ~[\*] | \*+ (~[\/\*] | \n) | \n )* \*+ "/"
 @stringliteral = \"([^\"]|.)*\"
-@integerliteral = (\-)*@digit+
-@floatliteral = (\-)*@digit+\.@digit+
+@integerliteral = @digit+
+@floatliteral = @digit+\.@digit+
 @charliteral  = \'@alphanum\'
 tokens :-
   $white+              ;
@@ -134,12 +138,22 @@ tokens :-
   "]"                  { mkT RightBracket }
   ">"                  { mkT Gt }
   "<"                  { mkT Lt }
+  ">>"                 { mkT ShiftRight }
+  "<<"                 { mkT ShiftLeft }
+  "+"                  { mkT Plus }
+  "-"                  { mkT Minus }
+  "^"                  { mkT Xor }
+  "&"                  { mkT And }
+  "|"                  { mkT Or }
+  "~"                  { mkT Not }
+  "*"                  { mkT Mul }
+  "/"                  { mkT Div }
+  "%"                  { mkT Mod }
 
   -- Catch-all
   .                    { unknown }
 
 {
-
 
 -- | Token type for OMG IDL
 data TokenClass
@@ -170,6 +184,17 @@ data TokenClass
   | FixedPointLiteral
 
   -- Symbols
+  | ShiftRight   -- >>
+  | ShiftLeft    -- <<
+  | Plus
+  | Minus
+  | Xor
+  | And
+  | Or
+  | Not
+  | Mul
+  | Div
+  | Mod
   | ColonColon   -- ::
   | LBrace       -- {
   | RBrace       -- }
@@ -188,13 +213,13 @@ data TokenClass
   | Eof
   deriving (Show, Eq)
 
-data Token = T AlexPosn TokenClass String deriving (Show)
+data Token = T AlexPosn TokenClass Text deriving (Show)
 
 alexEOF :: Alex Token
 alexEOF = return (T undefined Eof "")
 
 mkT :: TokenClass -> AlexInput -> Int -> Alex Token
-mkT c (p,_,_,str) len = return $ T p c (take len str)
+mkT c (p,_,_,str) len = return $ T p c (Text.take len str)
 
 showPosn (AlexPn _ line col) = show line ++ ':': show col
 
@@ -206,8 +231,8 @@ unknown input _ = do
 lexError s = do
   (p,c,_,input) <- alexGetInput
   alexError (showPosn p ++ ": " ++ s ++
-             (if (not (null input))
-              then " before " ++ show (head input)
+             (if (not (Text.null input))
+              then " before " ++ show (Text.head input)
               else " at end of file"))
 
 
