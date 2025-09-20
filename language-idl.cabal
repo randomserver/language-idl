@@ -1,0 +1,51 @@
+cabal-version:      3.0
+name:               language-idl
+version:            0.1.0.0
+-- synopsis:
+-- description:
+license:            BSD-3-Clause
+license-file:       LICENSE
+author:             Patrik Pettersson
+maintainer:         pettersson.pa@gmail.com
+-- copyright:
+category:           Language
+build-type:         Simple
+extra-doc-files:    CHANGELOG.md
+-- extra-source-files:
+
+common warnings
+    ghc-options: -Wall
+
+library
+    import:           warnings
+    exposed-modules:
+      Proto
+      Idl.Lexer
+      Idl.Parser2
+      Idl.Ast2
+    -- other-modules:
+    -- other-extensions:
+    build-tool-depends: alex:alex >=3.5.4.0,
+                        happy:happy
+    build-depends:    base ^>=4.18.3.0,
+                      array,
+                      transformers,
+                      text,
+                      prettyprinter,
+                      mtl,
+                      Stack
+    hs-source-dirs:   src
+    happy-options: --info
+    default-language: Haskell2010
+
+executable language-idl
+    import:           warnings
+    main-is:          Main.hs
+    -- other-modules:
+    -- other-extensions:
+    build-depends:
+        base ^>=4.18.3.0,
+        language-idl
+
+    hs-source-dirs:   app
+    default-language: Haskell2010

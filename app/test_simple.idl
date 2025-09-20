@@ -1,0 +1,20 @@
+module Simplest {
+  const uint8 CONSTANT = 2;
+  struct test {
+    unsigned long sven;
+  };
+
+  union my_union1 switch( my_union1_descriminator_kind )
+  {
+      case descriminator_unknown:
+      case descriminator_kind_count:
+      case descriminator_ulonglong:
+          unsigned long long      ull_value;
+      case descriminator_longlong:
+          long long               ll_value;
+      case descriminator_double:
+          double                  d_value;
+      case descriminator_string:
+          sequence<char, 23>          str_value;
+  };
+};
