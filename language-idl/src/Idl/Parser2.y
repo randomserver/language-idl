@@ -376,7 +376,7 @@ struct_dcl : struct_def         { $1 }
 -- 46
 struct_def :: { TypeDcl }
 struct_def : "struct" identifier ":" scoped_name "{" list1(member) "}"  { TypeStruct $2 (Just $4) $6 }
-           | "struct" identifier "{" list1(member) "}"                  { TypeStruct $2 Nothing $4           }
+           | "struct" identifier "{" list1(member) "}"                  { TypeStruct $2 Nothing $4   }
 
 -- 47
 member :: { StructMember }

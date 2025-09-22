@@ -19,7 +19,6 @@ common warnings
 library
     import:           warnings
     exposed-modules:
-      Proto
       Idl.Lexer
       Idl.Parser2
       Idl.Ast2
@@ -31,12 +30,9 @@ library
                       array,
                       transformers,
                       text >= 2.1.2,
-                      prettyprinter,
                       mtl,
-                      Stack,
                       containers
     hs-source-dirs:   src
-    happy-options: --info
     default-language: Haskell2010
 
 executable language-idl

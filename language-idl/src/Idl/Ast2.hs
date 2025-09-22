@@ -1,16 +1,15 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE ConstraintKinds #-}
-{-# LANGUAGE LambdaCase #-}
+
 module Idl.Ast2 where
-import Data.Bits
+import Data.Bits ( (.<<.), (.>>.), Bits((.&.), (.|.), xor) )
 import           Data.Text (Text)
-import qualified Data.Text as Text
 import Control.Monad.State
+    ( modify, evalState, MonadState(get, put), State )
 import Control.Monad.Except
+    ( runExceptT, MonadError(throwError), ExceptT )
 import Data.Map (Map)
 import qualified Data.Map as Map
-import Data.Stack (Stack)
-import qualified Data.Stack as Stack
 
 -- Top-level specification
 type Specification = [Definition]

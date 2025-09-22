@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Proto where
+module Idl.Proto where
 
 import Data.Text hiding (show)
 import Data.Stack
@@ -37,7 +37,7 @@ ppDefinition (DefModule identifier definitions) = do
       vcat ("{" : proto_defs)
     , "}" ]
 
-ppDefinition (DefConst identifier typeSpec constExpr) = do
+ppDefinition (DefConst identifier _ _) = do
   pure (pretty identifier)
 ppDefinition (DefType typeDcl) = do
   pure (pretty $ show typeDcl)
