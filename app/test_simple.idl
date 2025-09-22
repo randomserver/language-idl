@@ -1,9 +1,12 @@
+#include "test.idl"
 const uint8 CONSTANT = 1;
 
 module Simplest {
   const uint8 CONSTANT2 = (CONSTANT << 2) & CONSTANT;
+
   struct test {
     unsigned long sven;
+    unsigned long test[CONSTANT2];
   };
 
 };

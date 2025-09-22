@@ -15,134 +15,134 @@ import Control.Monad.Trans.Class (lift)
 %tokentype { Token }
 %error { parseError }
 
-%lexer { lift L.alexMonadScan >>= } { T _ L.Eof _ }
+%lexer { lift L.alexMonadScan >>= } { T _ L.Eof }
 %monad { Parse } 
 
 %token
   -- OMG IDL Keywords
-  "module"             { T _ L.Module _ }
-  "interface"          { T _ L.Interface _ }
-  "struct"             { T _ L.Struct _ }
-  "union"              { T _ L.Union _ }
-  "enum"               { T _ L.Enum _ }
-  "typedef"            { T _ L.Typedef _ }
-  "sequence"           { T _ L.Sequence _ }
+  "module"             { T _ L.Module }
+  "interface"          { T _ L.Interface }
+  "struct"             { T _ L.Struct }
+  "union"              { T _ L.Union  }
+  "enum"               { T _ L.Enum  }
+  "typedef"            { T _ L.Typedef  }
+  "sequence"           { T _ L.Sequence  }
 
   -- Additional Keywords
-  "abstract"           { T _ L.Abstract _ }
-  "any"                { T _ L.Any _ }
-  "alias"              { T _ L.Alias _ }
-  "attribute"          { T _ L.Attribute _ }
-  "bitfield"           { T _ L.Bitfield _ }
-  "bitmask"            { T _ L.Bitmask _ }
-  "bitset"             { T _ L.Bitset _ }
-  "boolean"            { T _ L.Boolean _ }
-  "case"               { T _ L.Case _ }
-  "char"               { T _ L.CharType _ }
-  "component"          { T _ L.Component _ }
-  "connector"          { T _ L.Connector _ }
-  "const"              { T _ L.Const _ }
-  "consumes"           { T _ L.Consumes _ }
-  "context"            { T _ L.Context _ }
-  "custom"             { T _ L.Custom _ }
-  "default"            { T _ L.Default _ }
-  "double"             { T _ L.DoubleType _ }
-  "exception"          { T _ L.Exception _ }
-  "emits"              { T _ L.Emits _ }
-  "eventtype"          { T _ L.Eventtype _ }
-  "factory"            { T _ L.Factory _ }
-  "FALSE"              { T _ L.FalseLit _ }
-  "finder"             { T _ L.Finder _ }
-  "fixed"              { T _ L.Fixed _ }
-  "float"              { T _ L.FloatType _ }
-  "getraises"          { T _ L.GetRaises _ }
-  "home"               { T _ L.Home _ }
-  "import"             { T _ L.Import _ }
-  "in"                 { T _ L.In _ }
-  "inout"              { T _ L.InOut _ }
-  "local"              { T _ L.Local _ }
-  "long"               { T _ L.Long _ }
-  "manages"            { T _ L.Manages _ }
-  "map"                { T _ L.Map _ }
-  "mirrorport"         { T _ L.MirrorPort _ }
-  "multiple"           { T _ L.Multiple _ }
-  "native"             { T _ L.Native _ }
-  "Object"             { T _ L.ObjectType _ }
-  "octet"              { T _ L.Octet _ }
-  "oneway"             { T _ L.OneWay _ }
-  "out"                { T _ L.Out _ }
-  "primarykey"         { T _ L.PrimaryKey _ }
-  "private"            { T _ L.Private _ }
-  "port"               { T _ L.Port _ }
-  "porttype"           { T _ L.PortType _ }
-  "provides"           { T _ L.Provides _ }
-  "public"             { T _ L.Public _ }
-  "publishes"          { T _ L.Publishes _ }
-  "raises"             { T _ L.Raises _ }
-  "readonly"           { T _ L.Readonly _ }
-  "setraises"          { T _ L.SetRaises _ }
-  "short"              { T _ L.Short _ }
-  "string"             { T _ L.StringType _ }
-  "supports"           { T _ L.Supports _ }
-  "switch"             { T _ L.Switch _ }
-  "TRUE"               { T _ L.TrueLit _ }
-  "truncatable"        { T _ L.Truncatable _ }
-  "typeid"             { T _ L.TypeId _ }
-  "typename"           { T _ L.TypeName _ }
-  "typeprefix"         { T _ L.TypePrefix _ }
-  "unsigned"           { T _ L.Unsigned _ }
-  "uses"               { T _ L.Uses _ }
-  "ValueBase"          { T _ L.ValueBase _ }
-  "valuetype"          { T _ L.ValueType _ }
-  "void"               { T _ L.Void _ }
-  "wchar"              { T _ L.WChar _ }
-  "wstring"            { T _ L.WString _ }
+  "abstract"           { T _ L.Abstract  }
+  "any"                { T _ L.Any  }
+  "alias"              { T _ L.Alias  }
+  "attribute"          { T _ L.Attribute  }
+  "bitfield"           { T _ L.Bitfield  }
+  "bitmask"            { T _ L.Bitmask  }
+  "bitset"             { T _ L.Bitset  }
+  "boolean"            { T _ L.Boolean  }
+  "case"               { T _ L.Case  }
+  "char"               { T _ L.CharType  }
+  "component"          { T _ L.Component  }
+  "connector"          { T _ L.Connector  }
+  "const"              { T _ L.Const  }
+  "consumes"           { T _ L.Consumes  }
+  "context"            { T _ L.Context  }
+  "custom"             { T _ L.Custom  }
+  "default"            { T _ L.Default  }
+  "double"             { T _ L.DoubleType  }
+  "exception"          { T _ L.Exception  }
+  "emits"              { T _ L.Emits  }
+  "eventtype"          { T _ L.Eventtype  }
+  "factory"            { T _ L.Factory  }
+  "FALSE"              { T _ L.FalseLit  }
+  "finder"             { T _ L.Finder  }
+  "fixed"              { T _ L.Fixed  }
+  "float"              { T _ L.FloatType  }
+  "getraises"          { T _ L.GetRaises  }
+  "home"               { T _ L.Home  }
+  "import"             { T _ L.Import  }
+  "in"                 { T _ L.In  }
+  "inout"              { T _ L.InOut  }
+  "local"              { T _ L.Local  }
+  "long"               { T _ L.Long  }
+  "manages"            { T _ L.Manages  }
+  "map"                { T _ L.Map  }
+  "mirrorport"         { T _ L.MirrorPort  }
+  "multiple"           { T _ L.Multiple  }
+  "native"             { T _ L.Native  }
+  "Object"             { T _ L.ObjectType  }
+  "octet"              { T _ L.Octet  }
+  "oneway"             { T _ L.OneWay  }
+  "out"                { T _ L.Out  }
+  "primarykey"         { T _ L.PrimaryKey  }
+  "private"            { T _ L.Private  }
+  "port"               { T _ L.Port }
+  "porttype"           { T _ L.PortType }
+  "provides"           { T _ L.Provides }
+  "public"             { T _ L.Public }
+  "publishes"          { T _ L.Publishes }
+  "raises"             { T _ L.Raises }
+  "readonly"           { T _ L.Readonly  }
+  "setraises"          { T _ L.SetRaises  }
+  "short"              { T _ L.Short  }
+  "string"             { T _ L.StringType  }
+  "supports"           { T _ L.Supports  }
+  "switch"             { T _ L.Switch  }
+  "TRUE"               { T _ L.TrueLit  }
+  "truncatable"        { T _ L.Truncatable  }
+  "typeid"             { T _ L.TypeId  }
+  "typename"           { T _ L.TypeName  }
+  "typeprefix"         { T _ L.TypePrefix  }
+  "unsigned"           { T _ L.Unsigned  }
+  "uses"               { T _ L.Uses  }
+  "ValueBase"          { T _ L.ValueBase  }
+  "valuetype"          { T _ L.ValueType  }
+  "void"               { T _ L.Void  }
+  "wchar"              { T _ L.WChar  }
+  "wstring"            { T _ L.WString  }
 
   -- Extended Integer Types
-  "int8"               { T _ L.Int8 _ }
-  "uint8"              { T _ L.UInt8 _ }
-  "int16"              { T _ L.Int16 _ }
-  "int32"              { T _ L.Int32 _ }
-  "int64"              { T _ L.Int64 _ }
-  "uint16"             { T _ L.UInt16 _ }
-  "uint32"             { T _ L.UInt32 _ }
-  "uint64"             { T _ L.UInt64 _ }
+  "int8"               { T _ L.Int8  }
+  "uint8"              { T _ L.UInt8  }
+  "int16"              { T _ L.Int16  }
+  "int32"              { T _ L.Int32  }
+  "int64"              { T _ L.Int64  }
+  "uint16"             { T _ L.UInt16  }
+  "uint32"             { T _ L.UInt32  }
+  "uint64"             { T _ L.UInt64  }
 
   -- Identifiers and Literals
-  identifier              { T _ L.Identifier $$     }
-  integer_literal         { T _ L.IntegerLiteral $$ }
-  floating_pt_literal     { T _ L.FloatLiteral $$   }
-  string_literal          { T _ L.StringLiteral $$  }
-  character_literal       { T _ L.CharLiteral $$    }
-  wide_string_literal     { T _ L.WStringLiteral $$ }
-  wide_character_literal  { T _ L.WCharLiteral $$ }
-  fixed_pt_literal        { T _ L.FixedPointLiteral $$ }
+  identifier              { T _ (L.Identifier $$)     }
+  integer_literal         { T _ (L.IntegerLiteral $$) }
+  floating_pt_literal     { T _ (L.FloatLiteral $$)   }
+  string_literal          { T _ (L.StringLiteral $$)  }
+  character_literal       { T _ (L.CharLiteral $$)    }
+  wide_string_literal     { T _ (L.WStringLiteral $$) }
+  wide_character_literal  { T _ (L.WCharLiteral $$)   }
+  fixed_pt_literal        { T _ (L.FixedPointLiteral $$) }
 
   -- Symbols
-  "{"                  { T _ L.LBrace _ }
-  "}"                  { T _ L.RBrace _ }
-  "("                  { T _ L.LParen _ }
-  ")"                  { T _ L.RParen _ }
-  ";"                  { T _ L.Semicolon _ }
-  ":"                  { T _ L.Colon _ }
-  ","                  { T _ L.Comma _ }
-  "="                  { T _ L.Equals _ }
-  "["                  { T _ L.LeftBracket _ }
-  "]"                  { T _ L.RightBracket _ }
-  "::"                 { T _ L.ColonColon _ }
-  ">"                  { T _ L.Gt _ }
-  "<"                  { T _ L.Lt _ }
-  ">>"                 { T _ L.ShiftRight _ }
-  "<<"                 { T _ L.ShiftLeft _ }
-  "+"                  { T _ L.Plus _ }
-  "-"                  { T _ L.Minus _ }
-  "^"                  { T _ L.Xor _ }
-  "&"                  { T _ L.And _ }
-  "|"                  { T _ L.Or _ }
-  "~"                  { T _ L.Not _ }
-  "*"                  { T _ L.Mul _ }
-  "/"                  { T _ L.Div _ }
-  "%"                  { T _ L.Mod _ }
+  "{"                  { T _ L.LBrace  }
+  "}"                  { T _ L.RBrace  }
+  "("                  { T _ L.LParen  }
+  ")"                  { T _ L.RParen  }
+  ";"                  { T _ L.Semicolon  }
+  ":"                  { T _ L.Colon  }
+  ","                  { T _ L.Comma  }
+  "="                  { T _ L.Equals  }
+  "["                  { T _ L.LeftBracket  }
+  "]"                  { T _ L.RightBracket }
+  "::"                 { T _ L.ColonColon  }
+  ">"                  { T _ L.Gt  }
+  "<"                  { T _ L.Lt  }
+  ">>"                 { T _ L.ShiftRight  }
+  "<<"                 { T _ L.ShiftLeft  }
+  "+"                  { T _ L.Plus  }
+  "-"                  { T _ L.Minus  }
+  "^"                  { T _ L.Xor  }
+  "&"                  { T _ L.And  }
+  "|"                  { T _ L.Or  }
+  "~"                  { T _ L.Not  }
+  "*"                  { T _ L.Mul  }
+  "/"                  { T _ L.Div  }
+  "%"                  { T _ L.Mod  }
 
 %%
 
@@ -228,10 +228,10 @@ primary_expr : scoped_name        { ExprScoped $1 }
 
 -- 17
 literal :: { Literal }
-literal : integer_literal        { LitInt (read (Text.unpack $1))   }
-        | floating_pt_literal    { LitFloat (read (Text.unpack $1)) }
+literal : integer_literal        { LitInt $1   }
+        | floating_pt_literal    { LitFloat $1 }
         | fixed_pt_literal       { LitFixed $1        }
-        | character_literal      { LitChar (read (Text.unpack $1))  }
+        | character_literal      { LitChar $1  }
         | wide_character_literal { LitWChar $1        }
         | boolean_literal        { LitBool $1         }
         | string_literal         { LitString $1       }

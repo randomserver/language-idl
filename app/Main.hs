@@ -1,9 +1,7 @@
 module Main where
 
-import Proto
 import Idl.Ast2
 import Idl.Parser2
-import Data.Text
 import qualified Data.Text.IO as TIO
 
 main :: IO ()

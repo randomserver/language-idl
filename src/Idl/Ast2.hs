@@ -37,9 +37,9 @@ data ConstExpr
 data Literal
   = LitInt Int
   | LitFloat Double
-  | LitFixed Text
+  | LitFixed Double
   | LitChar Char
-  | LitWChar Text
+  | LitWChar Char
   | LitString Text
   | LitWString Text
   | LitBool Bool
@@ -131,12 +131,12 @@ lookUp name = do
   scopedName <- getScope >>= (\sc -> pure (sc ++ name))
   case Map.lookup scopedName cons of
     Just ex -> pure ex
-    Nothing -> throwError ("Unkonwn referense to " ++ show name)
+    Nothing -> throwError ("Unkonwn referense to " ++ show scopedName)
 
 litToInt :: Constrain m => ConstExpr -> m Int
 litToInt e = case e of
   ExprLiteral (LitInt i) -> pure i
-  e -> throwError $ show e ++ " is not Integer"
+  err -> throwError $ show err ++ " is not Integer"
 
 simplifyExpr :: Constrain m => ConstExpr -> m ConstExpr
 simplifyExpr (ExprScoped name) = lookUp name

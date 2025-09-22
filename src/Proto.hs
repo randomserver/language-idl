@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Proto where
 
-import Data.Text
+import Data.Text hiding (show)
 import Data.Stack
 import Control.Monad.State
 import Prettyprinter

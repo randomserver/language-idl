@@ -1,7 +1,8 @@
 {
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE PatternSynonyms #-}
 module Idl.Lexer where
-import           Data.Text (Text)
+import           Data.Text (Text, pattern (:<), pattern (:>))
 import qualified Data.Text as Text
 
 }
@@ -17,14 +18,18 @@ import qualified Data.Text as Text
 @identifier    = @alpha @alphanum*
 @linecomment   = "//".*
 @blockcomment  = "/*" ( ~[\*] | \*+ (~[\/\*] | \n) | \n )* \*+ "/"
-@stringliteral = \"([^\"]|.)*\"
+@stringliteral = \"[^\"]*\"
 @integerliteral = @digit+
 @floatliteral = @digit+\.@digit+
 @charliteral  = \'@alphanum\'
+@macro = "#"[^\n]*
 tokens :-
   $white+              ;
   @linecomment         ;
   @blockcomment        ;
+
+  -- Macros
+  @macro               ; 
 
   -- Original keywords
   "module"             { mkT Module }
@@ -115,14 +120,14 @@ tokens :-
   "uint64"             { mkT UInt64 }
 
   -- Identifiers and literals
-  @identifier          { mkT Identifier }
-  @floatliteral        { mkT FloatLiteral }
-  @stringliteral       { mkT StringLiteral }
-  @integerliteral      { mkT IntegerLiteral }
-  @charliteral         { mkT CharLiteral }
-  "L" @stringliteral   { mkT WStringLiteral }
-  "L" @charliteral     { mkT WCharLiteral }
-  @floatliteral"D"     { mkT FixedPointLiteral }
+  @identifier          { mkString (\s -> Identifier s) }
+  @floatliteral        { mkFloat (\f -> FloatLiteral f) }
+  @stringliteral       { mkString (\s -> StringLiteral s) }
+  @integerliteral      { mkInt (\i -> IntegerLiteral i) }
+  @charliteral         { mkChar (\c -> CharLiteral c) }
+  "L" @stringliteral   { mkString (\s -> WStringLiteral s) }
+  "L" @charliteral     { mkChar (\c -> WCharLiteral c) }
+  @floatliteral"D"     { mkFloat (\f -> FixedPointLiteral f) }
 
   -- Symbols
   "::"                 { mkT ColonColon }
@@ -174,14 +179,14 @@ data TokenClass
   | Int8 | UInt8 | Int16 | Int32 | Int64 | UInt16 | UInt32 | UInt64
 
   -- Identifiers and literals
-  | Identifier
-  | IntegerLiteral
-  | StringLiteral
-  | WStringLiteral
-  | FloatLiteral
-  | CharLiteral
-  | WCharLiteral
-  | FixedPointLiteral
+  | Identifier Text
+  | IntegerLiteral Int
+  | StringLiteral Text
+  | WStringLiteral Text
+  | FloatLiteral Double
+  | CharLiteral Char
+  | WCharLiteral Char
+  | FixedPointLiteral Double
 
   -- Symbols
   | ShiftRight   -- >>
@@ -213,13 +218,44 @@ data TokenClass
   | Eof
   deriving (Show, Eq)
 
-data Token = T AlexPosn TokenClass Text deriving (Show)
+data Token = T AlexPosn TokenClass deriving (Show)
 
 alexEOF :: Alex Token
-alexEOF = return (T undefined Eof "")
+alexEOF = return (T undefined Eof)
 
 mkT :: TokenClass -> AlexInput -> Int -> Alex Token
-mkT c (p,_,_,str) len = return $ T p c (Text.take len str)
+mkT c (p,_,_,_) len = return $ T p c
+
+mkString :: (Text -> TokenClass) -> AlexInput -> Int -> Alex Token
+mkString constructor (p,_,_,str) len = 
+  let text = case Text.take len str of
+                'L' :< (('"' :< str) :> '"') -> str
+                '"' :< (t :> '"') -> t
+                t -> t
+      tclass = constructor text
+    in return $ T p tclass
+
+mkChar :: (Char -> TokenClass) -> AlexInput -> Int -> Alex Token
+mkChar constructor (p,_,_,str) len = 
+  let chr    = case Text.take len str of
+                  'L' :< wchar -> read $ Text.unpack wchar
+                  wchar        -> read $ Text.unpack wchar
+      tclass = constructor chr
+    in return $ T p tclass
+
+mkInt :: (Int -> TokenClass) -> AlexInput -> Int -> Alex Token
+mkInt constructor (p,_,_,str) len =
+  let i = read $ Text.unpack (Text.take len str)
+      tclass = constructor i
+   in return $ T p tclass
+
+mkFloat :: (Double -> TokenClass) -> AlexInput -> Int -> Alex Token
+mkFloat constructor (p,_,_,str) len =
+  let dbl = case Text.take len str of
+                  fl :> 'D' -> read $ Text.unpack fl
+                  fl        -> read $ Text.unpack fl
+      tclass = constructor dbl
+   in return $ T p tclass
 
 showPosn (AlexPn _ line col) = show line ++ ':': show col
 
@@ -237,7 +273,7 @@ lexError s = do
 
 
 alexScanTokens str = runAlex str $ do
-  let loop toks = do tok@(T _ cl _) <- alexMonadScan; 
+  let loop toks = do tok@(T _ cl) <- alexMonadScan; 
 		                 if cl == Eof
 			            then return (toks ++ [tok])
 			            else loop $ (toks ++ [tok])
