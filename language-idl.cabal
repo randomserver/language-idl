@@ -33,7 +33,8 @@ library
                       text,
                       prettyprinter,
                       mtl,
-                      Stack
+                      Stack,
+                      containers
     hs-source-dirs:   src
     happy-options: --info
     default-language: Haskell2010
