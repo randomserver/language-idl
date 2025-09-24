@@ -48,7 +48,7 @@ data Literal
 data TypeDcl
   = TypeStruct Identifier (Maybe ScopedName) [StructMember]
   | TypeUnion   -- [TODO]
-  | TypeEnum    -- [TODO]
+  | TypeEnum Identifier [Identifier]
   | TypeBitmask -- [TODO]
   | TypeNative Declarator
   | TypeTypedef TypeDeclarator 

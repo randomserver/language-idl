@@ -1,12 +1,21 @@
 #include "test.idl"
-const uint8 CONSTANT = 1;
 
-module Simplest {
+module ats {
+module scania {
+
+  const uint8 CONSTANT = 1;
   const uint8 CONSTANT2 = (CONSTANT << 2) & CONSTANT;
 
+
   struct test {
-    unsigned long sven;
-    unsigned long test[CONSTANT2];
+    map<uint8, map<uint16, sequence<uint32>>, 10> stuff;
   };
 
+  enum my_enum {
+    ONE,
+    TWO,
+    THREE
+  };
+
+};
 };

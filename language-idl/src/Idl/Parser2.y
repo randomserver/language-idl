@@ -1,4 +1,5 @@
 {
+{-# LANGUAGE LambdaCase #-}
 module Idl.Parser2 where
 import           Data.Text (Text)
 import qualified Data.Text as Text
@@ -6,8 +7,11 @@ import qualified Idl.Lexer as L
 import Idl.Lexer (Token, Token(..))
 import Idl.Ast2
 import Control.Monad
+import Control.Monad.Trans.State
 import Control.Monad.Trans.Except
 import Control.Monad.Trans.Class (lift)
+
+import Debug.Trace
 
 }
 
@@ -15,7 +19,7 @@ import Control.Monad.Trans.Class (lift)
 %tokentype { Token }
 %error { parseError }
 
-%lexer { lift L.alexMonadScan >>= } { T _ L.Eof }
+%lexer { monadScan >>= } { T _ L.Eof }
 %monad { Parse } 
 
 %token
@@ -339,23 +343,23 @@ template_type_spec : sequence_type    { $1 }
 
 -- 39
 sequence_type :: { TypeSpec }
-sequence_type : "sequence" "<" type_spec "," positive_int_const ">" { TSSeq $3 (Just $5) }
-              | "sequence" "<" type_spec ">"                        { TSSeq $3 Nothing   }
+sequence_type : "sequence" "<" type_spec "," positive_int_const gt ">"  { TSSeq $3 (Just $5) }
+              | "sequence" "<" type_spec gt ">"                         { TSSeq $3 Nothing   }
 
 -- 40
 string_type :: { TypeSpec }
-string_type : "string" "<" positive_int_const ">" { TSString (Just $3) }
+string_type : "string" "<" positive_int_const gt ">" { TSString (Just $3) }
             | "string"                            { TSString Nothing   }
 
 -- 41
 wide_string_type :: { TypeSpec }
-wide_string_type : "wstring" "<" positive_int_const ">" { TSWString (Just $3) }
+wide_string_type : "wstring" "<" positive_int_const gt ">" { TSWString (Just $3) }
                  | "wstring"                            { TSWString Nothing   }
 
 -- 42
 fixed_pt_type :: { TypeSpec }
-fixed_pt_type : "fixed" "<" positive_int_const "," positive_int_const ">" { TSFixed (Just $3) (Just $5) }
-              | "fixed"                                                   { TSFixed Nothing Nothing     }
+fixed_pt_type : "fixed" "<" positive_int_const "," positive_int_const gt ">" { TSFixed (Just $3) (Just $5) }
+              | "fixed"                                                      { TSFixed Nothing Nothing     }
 
 -- 43
 fixed_pt_const_type :: { TypeSpec }
@@ -365,7 +369,7 @@ fixed_pt_const_type : "fixed" { TSFixed Nothing Nothing }
 constr_type_dcl :: { TypeDcl }
 constr_type_dcl : struct_dcl  { $1 }
                 | union_dcl   { TypeUnion }
-                | enum_dcl    { TypeEnum }
+                | enum_dcl    { $1 }
                 | bitmask_dcl { TypeBitmask }
 
 -- 45
@@ -417,10 +421,10 @@ element_spec : type_spec declarator {}
 union_forward_dcl : "union" identifier  {}
 
 -- 57
-enum_dcl : "enum" identifier "{" sep1(enumerator, ",") "}"  {}
+enum_dcl : "enum" identifier "{" sep1(enumerator, ",") "}"  { TypeEnum $2 $4 }
 
 -- 58
-enumerator : identifier {}
+enumerator : identifier { $1 }
 
 -- 59
 array_declarator : identifier list1(fixed_array_size) { DeclArray $1 $2 }
@@ -459,8 +463,8 @@ declarator : simple_declarator { $1 }
 
 -- from building block extended data-types
 -- 199
-map_type : "map" "<" type_spec "," type_spec "," positive_int_const ">" { TSMap $3 $5 (Just $7) }
-         | "map" "<" type_spec "," type_spec ">"                        { TSMap $3 $5 Nothing   }
+map_type : "map" "<" type_spec "," type_spec "," positive_int_const gt ">" { TSMap $3 $5 (Just $7) }
+         | "map" "<" type_spec "," type_spec gt ">"                        { TSMap $3 $5 Nothing   }
 
 -- 200
 bitset_dcl : "bitset" identifier ":" list1(scoped_name) "{" list(bitfield) "}"  {}
@@ -470,8 +474,8 @@ bitset_dcl : "bitset" identifier ":" list1(scoped_name) "{" list(bitfield) "}"  
 bitfield : bitfield_spec list(identifier) ";" {}
 
 -- 202
-bitfield_spec : "bitfield" "<" positive_int_const ">"                       {}
-              | "bitfield" "<" positive_int_const "," destination_type ">"  {}
+bitfield_spec : "bitfield" "<" positive_int_const gt ">"                       {}
+              | "bitfield" "<" positive_int_const "," destination_type gt ">"  {}
 
 -- 203
 destination_type : boolean_type {}
@@ -491,6 +495,13 @@ signed_tiny_int : "int8"  {}
 unsigned_tiny_int : "uint8" {}
 
 -- Happy stuff
+gt :: { () }
+gt : {- empty -} {%% \(T pos tc) ->
+                    case tc of
+                      L.ShiftRight -> pushToken (T pos L.Gt) *> pushToken (T pos L.Gt)
+                      _ -> pushToken (T pos tc)
+                  }
+
 list(p)         : list1(p)            { $1 }
                 |                     { [] }
 
@@ -509,12 +520,28 @@ snd(SEP,EXPR)
 
 {
 
-type Parse = ExceptT String L.Alex
+type TokenStack = [Token]
+type Parse = StateT TokenStack (ExceptT String L.Alex)
+
+pushToken :: Token -> Parse ()
+pushToken tc = modify $ \toks -> tc:toks
+
+monadScan :: Parse Token
+monadScan = do
+  mt <- state $ \toks -> case toks of
+    (tok:rest) -> (Just tok, rest)
+    []         -> (Nothing, [])
+
+  case mt of
+    Just tok -> pure tok
+    Nothing -> lift . lift $ L.alexMonadScan
+
 
 parseError :: Token -> Parse a
-parseError tok = throwE $ "Parse Error: " ++ (show tok)
+parseError tok = lift . throwE $ "Parse Error: " ++ (show tok)
 
 runParser ::Text -> Either String Specification
-runParser = join <$> flip L.runAlex (runExceptT idlParse)
+runParser = join <$> flip L.runAlex (runExceptT (evalStateT idlParse []))
+--runParser input = evalSateT (join <$> flip L.runAlex (runExceptT idlParse) input) []
 
 }
