@@ -1,0 +1,30 @@
+#include "test.idl"
+
+module ats {
+module scania {
+
+  const uint8 CONSTANT = 1;
+  const uint8 CONSTANT2 = (CONSTANT << 2);
+  enum my_enum {
+    ONE,
+    TWO,
+    THREE
+  };
+
+  struct test {
+    uint8 nonarray, myArray[10];
+    map<string, sequence<uint32>> stuff;
+    sequence<my::weird::type> seq;
+  };
+
+  struct my_other_struct {
+    uint8 integer1, integer2;
+    int32 integer4;
+  };
+};
+enum my_enum {
+    OTHER,
+    TWO,
+    THREE
+  };
+};

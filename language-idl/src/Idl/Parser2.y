@@ -542,6 +542,4 @@ parseError tok = lift . throwE $ "Parse Error: " ++ (show tok)
 
 runParser ::Text -> Either String Specification
 runParser = join <$> flip L.runAlex (runExceptT (evalStateT idlParse []))
---runParser input = evalSateT (join <$> flip L.runAlex (runExceptT idlParse) input) []
-
 }
