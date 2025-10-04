@@ -1,7 +1,7 @@
 {
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE PatternSynonyms #-}
-module Idl.Lexer where
+module Idl.Parser.Lexer where
 import           Data.Text (Text, pattern (:<), pattern (:>))
 import qualified Data.Text as Text
 
@@ -22,14 +22,13 @@ import qualified Data.Text as Text
 @integerliteral = @digit+
 @floatliteral = @digit+\.@digit+
 @charliteral  = \'@alphanum\'
-@macro = "#"[^\n]*
 tokens :-
   $white+              ;
   @linecomment         ;
   @blockcomment        ;
 
   -- Macros
-  @macro               ; 
+  "#include"           { mkT MacroInclude }
 
   -- Original keywords
   "module"             { mkT Module }
@@ -216,6 +215,9 @@ data TokenClass
 
   | Unknown
   | Eof
+  
+  -- Macros
+  | MacroInclude
   deriving (Show, Eq)
 
 data Token = T AlexPosn TokenClass deriving (Show)

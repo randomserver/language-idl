@@ -13,8 +13,7 @@ module scania {
 
   struct test {
     uint8 nonarray, myArray[10];
-    map<string, sequence<uint32>> stuff;
-    sequence<my::weird::type> seq;
+    sequence<string> seq;
   };
 
   struct my_other_struct {

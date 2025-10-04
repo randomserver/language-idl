@@ -13,8 +13,8 @@ import Control.Monad (forM)
 import Control.Monad.Trans.State
 import Prettyprinter
 import Prettyprinter.Render.Text
-import Idl.Ast2
 import System.IO
+import Idl.Parser
 
 type FieldIds = Map Text Int
 
@@ -61,18 +61,18 @@ getFieldId name starting = do
       | otherwise  = snd (maximumBy (comparing snd) (Map.toList m)) + 1
 
 ppTypeSpec :: TypeSpec -> ProtoPrint (Maybe (Doc a))
-ppTypeSpec (TSInt TInt8) = pure $ Just "int8"
-ppTypeSpec (TSInt TInt16) = pure $ Just "int16"
+ppTypeSpec (TSInt TInt8) = pure $ Just "int32"
+ppTypeSpec (TSInt TInt16) = pure $ Just "int32"
 ppTypeSpec (TSInt TInt32) = pure $ Just "int32"
 ppTypeSpec (TSInt TInt64) = pure $ Just "int64"
-ppTypeSpec (TSInt TUInt8) = pure $ Just "uint8"
-ppTypeSpec (TSInt TUInt16) = pure $ Just "uint16"
+ppTypeSpec (TSInt TUInt8) = pure $ Just "uint32"
+ppTypeSpec (TSInt TUInt16) = pure $ Just "uint32"
 ppTypeSpec (TSInt TUInt32) = pure $ Just "uint32"
 ppTypeSpec (TSInt TUInt64) = pure $ Just "uint64"
 ppTypeSpec (TSFloat Float32) = pure $ Just "float"
 ppTypeSpec (TSFloat _) = pure $ Just "double"
-ppTypeSpec TSChar = pure $ Just "uint8"
-ppTypeSpec TSWChar = pure $ Just "uint16"
+ppTypeSpec TSChar = pure $ Just "uint32"
+ppTypeSpec TSWChar = pure $ Just "uint32"
 ppTypeSpec TSBool = pure $ Just "bool"
 ppTypeSpec TSOctet = pure Nothing
 ppTypeSpec (TSString _) = pure $ Just "string"
@@ -145,9 +145,9 @@ ppDefinition (DefType typeDcl) = ppTypeDcl typeDcl
 
 ppDefinition _ = pure Nothing
 
-ppDefinitions :: Specification -> ProtoPrint (Doc a)
-ppDefinitions spec = do
-  docs <- mapM ppDefinition spec
+ppDefinitions :: [Definition] -> ProtoPrint (Doc a)
+ppDefinitions defs = do
+  docs <- mapM ppDefinition defs
   pure $ vcat $ "syntax = \"proto3\";" : catMaybes docs 
 
 render :: Doc a -> IO ()
@@ -155,5 +155,4 @@ render doc = renderIO System.IO.stdout (layoutPretty defaultLayoutOptions doc)
 
 renderProto :: [Definition] -> IO ()
 renderProto def = render (evalState (ppDefinitions def) emptyProtoState)
-
 

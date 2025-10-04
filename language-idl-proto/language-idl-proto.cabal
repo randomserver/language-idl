@@ -18,7 +18,7 @@ common warnings
 
 library
     import:           warnings
-    exposed-modules:  Idl.Proto
+    exposed-modules:  Idl.Proto, Idl.Proto.Simplify, Idl.Proto.Ast
     -- other-modules:
     -- other-extensions:
     build-depends:    base ^>=4.18.3.0,
@@ -28,7 +28,8 @@ library
                       prettyprinter,
                       mtl,
                       transformers,
-                      language-idl
+                      language-idl,
+                      filepath
     hs-source-dirs:   src
     default-language: Haskell2010
 
@@ -38,7 +39,8 @@ executable language-idl-proto
     base ^>=4.18.3.0,
     text,
     language-idl,
-    language-idl-proto
+    language-idl-proto,
+    mtl
   hs-source-dirs: app
   default-language: Haskell2010
 

@@ -1,11 +1,11 @@
 {
 {-# LANGUAGE LambdaCase #-}
-module Idl.Parser2 where
+module Idl.Parser.Parser where
 import           Data.Text (Text)
 import qualified Data.Text as Text
-import qualified Idl.Lexer as L
-import Idl.Lexer (Token, Token(..))
-import Idl.Ast2
+import qualified Idl.Parser.Lexer as L
+import Idl.Parser.Lexer (Token, Token(..))
+import Idl.Parser.Ast
 import Control.Monad
 import Control.Monad.Trans.State
 import Control.Monad.Trans.Except
@@ -31,6 +31,9 @@ import Debug.Trace
   "enum"               { T _ L.Enum  }
   "typedef"            { T _ L.Typedef  }
   "sequence"           { T _ L.Sequence  }
+
+  -- Macros (should probably have its own preprocessor parser and intermediate format)
+  "#include"           { T _ L.MacroInclude }
 
   -- Additional Keywords
   "abstract"           { T _ L.Abstract  }
@@ -152,7 +155,7 @@ import Debug.Trace
 
 -- 1
 specification :: { Specification }
-specification : list1(definition) { $1 }
+specification : list(include) list1(definition) { Spec $1 $2 }
 
 -- 2
 definition :: { Definition }
@@ -494,6 +497,11 @@ signed_tiny_int : "int8"  {}
 -- 209
 unsigned_tiny_int : "uint8" {}
 
+
+-- Macro parsing (should have its own parser)
+include :: { String }
+include : "#include" string_literal { Text.unpack $2 }
+
 -- Happy stuff
 gt :: { () }
 gt : {- empty -} {%% \(T pos tc) ->
@@ -521,14 +529,14 @@ snd(SEP,EXPR)
 {
 
 type TokenStack = [Token]
-type Parse = StateT TokenStack (ExceptT String L.Alex)
+type Parse = ExceptT String (StateT TokenStack L.Alex)
 
 pushToken :: Token -> Parse ()
-pushToken tc = modify $ \toks -> tc:toks
+pushToken tc = lift . modify $ \toks -> tc:toks
 
 monadScan :: Parse Token
 monadScan = do
-  mt <- state $ \toks -> case toks of
+  mt <- lift $ state $ \toks -> case toks of
     (tok:rest) -> (Just tok, rest)
     []         -> (Nothing, [])
 
@@ -538,8 +546,6 @@ monadScan = do
 
 
 parseError :: Token -> Parse a
-parseError tok = lift . throwE $ "Parse Error: " ++ (show tok)
+parseError tok = throwE $ "Parse Error: " ++ (show tok)
 
-runParser ::Text -> Either String Specification
-runParser = join <$> flip L.runAlex (runExceptT (evalStateT idlParse []))
 }

@@ -1,13 +1,16 @@
+{-# LANGUAGE BlockArguments, LambdaCase #-}
 module Main where
 
-import Idl.Ast2
-import Idl.Parser2
+import Idl.Parser
 import Idl.Proto
+import Idl.Proto.Simplify
 import qualified Data.Text.IO as TIO
+import Control.Monad.IO.Class
+import Control.Monad.Except
 
 main :: IO ()
 main = do
-  input <- TIO.readFile "app/test_simple.idl"
-  case runParser input of
+  (runExceptT . runParser) "app/test_simple.idl" >>= \case
     Left err -> putStrLn err
-    Right ast -> renderProto ast 
+    Right (IdlFile _ includes specs) -> print includes >> print specs
+  pure ()
